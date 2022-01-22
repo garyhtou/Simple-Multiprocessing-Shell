@@ -10,5 +10,4 @@ TODO:
 
 - Gary Tou ([@garyhtou](https://github.com/garyhtou))
 - Castel Villalobos ([@impropernoun](https://github.com/impropernoun))
-- Hank Rudolph
-
+- Hank Rudolph ([@hankrud](https://github.com/HankRud))
