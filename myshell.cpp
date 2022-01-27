@@ -1,4 +1,6 @@
 #include "command.h"
+#include "helper.h"
+
 #include <iostream>
 
 using namespace std;
@@ -13,7 +15,15 @@ const char PIPE_DELIMITER = '|';
 vector<string> parse(string rawMultiCommand)
 {
 	printf("\tDEBUG: parse\n");
+
+	rawMultiCommand = Helper::trimStr(rawMultiCommand);
 	vector<string> commands;
+
+	if (rawMultiCommand.length() == 0)
+	{
+		printf("\tDEBUG: parse: rawMultiCommand is empty\n");
+		return commands;
+	}
 
 	size_t index = 0;
 	string currCommand;
@@ -21,13 +31,13 @@ vector<string> parse(string rawMultiCommand)
 	while ((index = rawMultiCommand.find(PIPE_DELIMITER)) != string::npos)
 	{
 		currCommand = rawMultiCommand.substr(0, index);
-		commands.push_back(currCommand);
+		commands.push_back(Helper::trimStr(currCommand));
 		printf("\tDEBUG: currCommand = %s\n", currCommand.c_str());
 		rawMultiCommand.erase(0, index + 1);
 	}
 	// push the last command
 	commands.push_back(rawMultiCommand);
-	printf("\tDEBUG: currCommand = %s\n", currCommand.c_str());
+	printf("\tDEBUG: currCommand = %s\n", rawMultiCommand.c_str());
 
 	return commands;
 }

@@ -1,4 +1,6 @@
 //
+#include "command.h"
+#include "helper.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -10,14 +12,13 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "command.h"
 using namespace std;
 
 string rawCommand;
 
 Command::Command(string rawCommand)
 {
-	printf("\tDEBUG: Command::Command");
+	printf("\tDEBUG: Command::Command\n");
 	this->rawCommand = rawCommand;
 	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 }
@@ -45,6 +46,7 @@ vector<string> Command::tokenize(string rawCommand)
 {
 	printf("\tDEBUG: Command::parse\n");
 	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
+	rawCommand = Helper::trimStr(rawCommand);
 	vector<string> tokens;
 
 	size_t index = 0;
@@ -53,7 +55,7 @@ vector<string> Command::tokenize(string rawCommand)
 	while ((index = rawCommand.find(this->DELIMITER)) != string::npos)
 	{
 		currToken = rawCommand.substr(0, index);
-		tokens.push_back(currToken);
+		tokens.push_back(Helper::trimStr(currToken));
 		printf("\tDEBUG: currToken = %s\n", currToken.c_str());
 		rawCommand.erase(0, index + 1);
 	}
