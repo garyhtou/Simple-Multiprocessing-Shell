@@ -29,7 +29,7 @@ Command::~Command()
 void Command::run()
 {
 	printf("\tDEBUG: Command::run\n");
-	vector<string> args = parse(this->rawCommand);
+	vector<string> args = tokenize(this->rawCommand);
 
 	try
 	{
@@ -41,7 +41,7 @@ void Command::run()
 	}
 }
 
-vector<string> Command::parse(string rawCommand)
+vector<string> Command::tokenize(string rawCommand)
 {
 	printf("\tDEBUG: Command::parse\n");
 	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
@@ -133,7 +133,7 @@ char *const *Command::stringVectorToCharArray(vector<string> toConvert)
 {
 	char **charArr = new char *[toConvert.size() + 1];
 
-	for (int i = 0; i < toConvert.size(); ++i)
+	for (int i = 0; i < toConvert.size(); i++)
 	{
 		charArr[i] = new char[toConvert[i].size() + 1]; //make it fit
 		strcpy(charArr[i], toConvert[i].c_str());				//copy string

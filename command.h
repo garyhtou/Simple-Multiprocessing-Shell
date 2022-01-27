@@ -17,7 +17,7 @@ public:
 private:
 	string rawCommand;
 
-	vector<string> parse(string rawCommand); //function that parses command line into strings
+	vector<string> tokenize(string rawCommand); //function that parses command line into strings
 	void execute(vector<string> args);
 	void childExecute(vector<string> args);
 
