@@ -20,6 +20,7 @@ private:
 	vector<string> parse(string rawCommand); //function that parses command line into strings
 	void execute(vector<string> args);
 	void childExecute(vector<string> args);
-	void handleError(int code, string errorMessage);
-	char*const *argChars(vector<string> toConvert);
+
+	// Static helper function
+	static char *const *stringVectorToCharArray(vector<string> toConvert);
 };

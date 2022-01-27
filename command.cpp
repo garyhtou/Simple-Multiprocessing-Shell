@@ -17,18 +17,18 @@ string rawCommand;
 
 Command::Command(string rawCommand)
 {
-	printf("DEBUG: Command::Command");
+	printf("\tDEBUG: Command::Command");
 	this->rawCommand = rawCommand;
-	printf("DEBUG: rawCommand = %s\n", rawCommand.c_str());
+	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 }
 Command::~Command()
 {
-	printf("DEBUG: Command::~Command\n");
+	printf("\tDEBUG: Command::~Command\n");
 	//TODO: might not be needed??
 }
 void Command::run()
 {
-	printf("DEBUG: Command::run\n");
+	printf("\tDEBUG: Command::run\n");
 	vector<string> args = parse(this->rawCommand);
 
 	try
@@ -37,91 +37,109 @@ void Command::run()
 	}
 	catch (...)
 	{
-		// first set output code and stdout;
-		// handleError(code, errorMessage);
+		printf("\n\nDEBUG: Command::run caught unexpected exception !!!!!!\n\n\n");
 	}
 }
 
 vector<string> Command::parse(string rawCommand)
 {
-	printf("DEBUG: Command::parse\n");
-	printf("DEBUG: rawCommand = %s\n", rawCommand.c_str());
-	vector<string> parsedArgs;
-
-	// https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
+	printf("\tDEBUG: Command::parse\n");
+	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
+	vector<string> tokens;
 
 	size_t index = 0;
-	string token;
+	string currToken;
+	// Split using the delimiter
 	while ((index = rawCommand.find(this->DELIMITER)) != string::npos)
 	{
-		token = rawCommand.substr(0, index);
-		parsedArgs.push_back(token);
-		printf("DEBUG: token = %s\n", token.c_str());
+		currToken = rawCommand.substr(0, index);
+		tokens.push_back(currToken);
+		printf("\tDEBUG: currToken = %s\n", currToken.c_str());
 		rawCommand.erase(0, index + 1);
 	}
-	parsedArgs.push_back(rawCommand);
-	printf("DEBUG: token = %s\n", rawCommand.c_str());
+	// push the last token
+	tokens.push_back(rawCommand);
+	printf("\tDEBUG: currToken = %s\n", rawCommand.c_str());
 
-	return parsedArgs;
+	return tokens;
 }
 
 void Command::execute(vector<string> args)
 {
-	printf("DEBUG: Command::execute\n");
+	printf("\tDEBUG: Command::execute\n");
 	// fork and run
 	pid_t pid = fork();
 
 	//handle failed fork
 	if (pid < 0)
 	{
+		// TODO: make sure this follows instructions
 		cout << "Fork failed" << endl;
 	}
 	else if (pid == 0) // if child excecute
 	{
 		this->childExecute(args);
-		// The child will exit in the function. It will not return here.
+		// The child will exit in the function. It will never return here.
 	}
 
-	// parent code
 	int status;
 	waitpid(pid, &status, 0);
-	// TODO: handle error
 
-	cout << "process " << pid << " exits with " << status << endl;
+	if (WIFEXITED(status))
+	{
+		int code = WEXITSTATUS(status);
+		cout << "process " << pid << " exits with " << code << endl;
+	}
+	else if (WIFSIGNALED(status))
+	{
+		int signal = WTERMSIG(status);
+		// The process was terminated by a signal.
+		//TODO: This isn't really required by the instructions. double check
+		cout << "process " << pid << " was terminated with " << signal << endl;
+	}
+	else
+	{
+		cout << "process " << pid << " exists with "
+				 << "unknown code" << endl;
+	}
 }
 
 void Command::childExecute(vector<string> args)
 {
-	printf("DEBUG: Command::childExecute\n");
+	printf("\tDEBUG: Command::childExecute\n");
 	// convert C++ vector of strings to C array
-	char *const *argv = this->argChars(args);
+	char *const *argv = Command::stringVectorToCharArray(args);
 
-	int code = execvp(argv[0], argv);
+	execvp(argv[0], argv);
+	// A sucessfull execvp call will NOT return. This following code will only run
+	// if an error with execvp occurs.
 
-	// This code will only run if execvp itself fails.
-	// Errors from the command executed is handled after waitpid
-	handleError(code, "execvp failed");
-}
+	// The following code will only run if execvp itself fails.
+	// Errors from the command executed is handled after waitpid.
 
-void Command::handleError(int code, string errorMessage)
-{
-	printf("DEBUG: Command::handleError\n");
-	perror("execvp failed");
+	// deallocate argv (necessary if execvp fails)
+	for (int i = 0; i < args.size(); i++)
+	{
+		delete[] argv[i];
+	}
+	delete[] argv;
+
+	printf("\tDEBUG: Command failed to run\n");
+	perror("Command failed to run");
 	exit(1);
-	// https://www.cplusplus.com/reference/cstdio/perror/
 }
 
-char *const *Command::argChars(vector<string> toConvert)
+char *const *Command::stringVectorToCharArray(vector<string> toConvert)
 {
-	char **cc = new char *[toConvert.size() + 1];
+	char **charArr = new char *[toConvert.size() + 1];
 
 	for (int i = 0; i < toConvert.size(); ++i)
 	{
-		cc[i] = new char[toConvert[i].size() + 1]; //make it fit
-		strcpy(cc[i], toConvert[i].c_str());			 //copy string
-		printf("DEBUG: cc[%d] = %s\n", i, cc[i]);
+		charArr[i] = new char[toConvert[i].size() + 1]; //make it fit
+		strcpy(charArr[i], toConvert[i].c_str());				//copy string
+		printf("\tDEBUG: charArr[%d] = %s\n", i, charArr[i]);
 	}
-	cc[toConvert.size() + 1] = NULL;
+	charArr[toConvert.size() + 1] = NULL;
 
-	return cc; //pointers to the strings will be const to whoever receives this data.
+	return charArr; //pointers to the strings will be const to whoever receives this data.
 }
