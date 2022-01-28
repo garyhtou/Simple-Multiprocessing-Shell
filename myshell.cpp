@@ -25,6 +25,7 @@ vector<string> parse(string rawMultiCommand)
 		return commands;
 	}
 
+	// TODO: parse needs to account for pipes within strings
 	size_t index = 0;
 	string currCommand;
 	// Split using the delimiter

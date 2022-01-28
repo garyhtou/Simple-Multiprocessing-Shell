@@ -49,6 +49,7 @@ vector<string> Command::tokenize(string rawCommand)
 	rawCommand = Helper::trimStr(rawCommand);
 	vector<string> tokens;
 
+	// TODO: parse needs to account for strings as a single token
 	size_t index = 0;
 	string currToken;
 	// Split using the delimiter
