@@ -42,6 +42,12 @@ void Command::run()
 	}
 }
 
+
+void Command:: runPiped()
+{
+	printf("\tDEBUG: Command::runP\n");
+}
+
 vector<string> Command::tokenize(string rawCommand)
 {
 	printf("\tDEBUG: Command::parse\n");

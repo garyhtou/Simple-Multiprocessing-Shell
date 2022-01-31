@@ -12,6 +12,7 @@ public:
 	Command(string rawCommand); // constructor
 	~Command();									// destructor
 	void run();
+	void runPiped();
 	static const char DELIMITER = ' ';
 
 private:
