@@ -52,6 +52,7 @@ void  parse(string rawMultiCommand)
 				printf("\tDEBUG: currPipedToken = %s\n", rawMultiCommand.c_str()); */
 				
 				//call piped command runner
+				runPipedCommands(rawMultiCommand);
 				
 		}else{ 
 			
@@ -89,7 +90,7 @@ void runCommands(vector<string> rawCommands)
 }
 
 void runPipedCommands(string rawCommands){
-	printf("\tDEBUG: runCommands\n");
+	printf("\tDEBUG: runPipedCommands\n");
 	vector<Command> commands;
 
 	// Create a new command
