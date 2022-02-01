@@ -52,7 +52,7 @@ void runCommands(vector<string> rawCommands)
 	if (rawCommands.size() == 1)
 	{
 		printf("\tDEBUG: runCommands: Running SINGLE command\n");
-		Command command = Command(rawCommands[0], nullptr, nullptr);
+		Command command = Command(rawCommands[0], NULL, NULL);
 		command.run();
 		return;
 	}
@@ -81,7 +81,7 @@ void runCommands(vector<string> rawCommands)
 		printf("\tDEBUG: runCommands: command #%d\n", i + 1);
 		pipe(outPipe);
 		// Create a new command
-		Command command = Command(rawCommands[i]);
+		Command command = Command(rawCommands[i], inPipe, outPipe);
 		commands.push_back(command);
 		command.run();
 
@@ -97,6 +97,7 @@ void runCommands(vector<string> rawCommands)
 	Command trailingCommand = Command(rawCommands[rawCommands.size() - 1], inPipe, NULL);
 	commands.push_back(trailingCommand);
 	trailingCommand.run();
+
 	close(inPipe[0]);
 	close(inPipe[1]);
 }

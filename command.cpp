@@ -30,6 +30,8 @@ Command::Command(string rawCommand, int *inPipe, int *outPipe)
 {
 	printf("\tDEBUG: Command::Command (piped)\n");
 	this->rawCommand = rawCommand;
+	this->inPipe = inPipe;
+	this->outPipe = outPipe;
 	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 }
 Command::~Command()
@@ -121,6 +123,13 @@ void Command::childExecute(vector<string> args)
 {
 	printf("\tDEBUG: Command::childExecute\n");
 
+	// convert C++ vector of strings to C array
+	char *const *argv = Command::stringVectorToCharArray(args);
+
+	printf("\tDEBUG: Going to setup the pipes (if necessary) — any prints after "\
+	"this statement will be inputted to the next command if output pipes are set "\
+	"up\n");
+
 	if (this->inPipe)
 	{
 		printf("\tDEBUG: inPipe = %d\n", *inPipe);
@@ -140,9 +149,6 @@ void Command::childExecute(vector<string> args)
 	{
 		printf("\tDEBUG: outPipe == NULL\n");
 	}
-
-	// convert C++ vector of strings to C array
-	char *const *argv = Command::stringVectorToCharArray(args);
 
 	execvp(argv[0], argv);
 	// A successful execvp call will NOT return. This following code will only run
@@ -175,7 +181,7 @@ void Command::setInPipe(int *input)
 void Command::setOutPipe(int *output)
 {
 	printf("\tDEBUG: set_write\n");
-	printf("\t: output = [%d, %d]\n", output[0], output[1]);
+	printf("\tDEBUG: output = [%d, %d]\n", output[0], output[1]);
 	dup2(output[1], STDOUT_FILENO);
 	close(output[0]);
 	close(output[1]);
