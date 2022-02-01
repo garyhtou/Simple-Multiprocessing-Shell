@@ -7,12 +7,14 @@ using namespace std;
 
 const char PIPE_DELIMITER = '|';
 
+
+
 /*
  * IMPORTANT!
  * This parsing function will not ignore pipes within strings.
  * TODO: Do we need to support that?
  */
-vector<string> parse(string rawMultiCommand)
+void  parse(string rawMultiCommand)
 {
 	printf("\tDEBUG: parse\n");
 
@@ -22,25 +24,53 @@ vector<string> parse(string rawMultiCommand)
 	if (rawMultiCommand.length() == 0)
 	{
 		printf("\tDEBUG: parse: rawMultiCommand is empty\n");
-		return commands;
+		//return commands;
+
 	}
 
-	// TODO: parse needs to account for pipes within strings
-	size_t index = 0;
-	string currCommand;
-	// Split using the delimiter
-	while ((index = rawMultiCommand.find(PIPE_DELIMITER)) != string::npos)
-	{
-		currCommand = rawMultiCommand.substr(0, index);
-		commands.push_back(Helper::trimStr(currCommand));
-		printf("\tDEBUG: currCommand = %s\n", currCommand.c_str());
-		rawMultiCommand.erase(0, index + 1);
-	}
-	// push the last command
-	commands.push_back(rawMultiCommand);
-	printf("\tDEBUG: currCommand = %s\n", rawMultiCommand.c_str());
+	else{
 
-	return commands;
+		// TODO: parse needs to account for pipes within strings
+		size_t index = 0;
+		string currCommand;
+
+		//check for pipes and run pipe path if found
+		if (rawMultiCommand.find(PIPE_DELIMITER) != string::npos) {
+					
+			/* Split using the delimiter (BLOCKED FOR NOW: PASSING RAW STRING
+			   TO COMMAND CONSTRUCTOR FOR PIPED ARGUMENTS)
+			*/
+			/* while ((index = rawMultiCommand.find(PIPE_DELIMITER)) != string::npos)
+			{
+				currCommand = rawMultiCommand.substr(0, index);
+				commands.push_back(Helper::trimStr(currCommand));
+				printf("\tDEBUG: currPipedToken = %s\n", currCommand.c_str());
+				rawMultiCommand.erase(0, index + 1);
+			}
+				// push the last command
+				commands.push_back(rawMultiCommand);
+				printf("\tDEBUG: currPipedToken = %s\n", rawMultiCommand.c_str()); */
+				
+				//call piped command runner
+				runPipedCommands(rawMultiCommand);
+				
+		}else{ 
+			
+			while ((index = rawMultiCommand.find(" ")) != string::npos)
+			{
+				currCommand = rawMultiCommand.substr(0, index);
+				commands.push_back(Helper::trimStr(currCommand));
+				printf("\tDEBUG: currCommand = %s\n", currCommand.c_str());
+				rawMultiCommand.erase(0, index + 1);
+			}
+				// push the last command
+				commands.push_back(rawMultiCommand);
+				printf("\tDEBUG: currCommand = %s\n", rawMultiCommand.c_str());
+
+		}
+	}
+
+
 }
 
 void runCommands(vector<string> rawCommands)
@@ -59,6 +89,16 @@ void runCommands(vector<string> rawCommands)
 	}
 }
 
+void runPipedCommands(string rawCommands){
+	printf("\tDEBUG: runPipedCommands\n");
+	vector<Command> commands;
+
+	// Create a new command
+	Command command = Command(rawCommands);
+	//ru excecute pipedcommands
+	command.runPiped();
+}
+
 int main(int argc, char *argv[])
 {
 	printf("\tDEBUG: main\n");
@@ -69,9 +109,9 @@ int main(int argc, char *argv[])
 	printf("\tDEBUG: rawMultiCommand = %s\n", rawMultiCommand.c_str());
 
 	// Parse the multi-command into a vector of commands
-	vector<string> rawCommands = parse(rawMultiCommand);
+	//vector<string> rawCommands = parse(rawMultiCommand);
 
-	runCommands(rawCommands);
+	//runCommands(rawCommands);
 
 	// Command command("cat lksdf");
 	// Command command("echo hi");
