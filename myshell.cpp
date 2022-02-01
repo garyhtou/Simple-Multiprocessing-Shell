@@ -8,45 +8,6 @@ using namespace std;
 
 const char PIPE_DELIMITER = '|';
 
-/*
- * IMPORTANT!
- * This parsing function will not ignore pipes within strings.
- * TODO: Do we need to support that?
- */
-vector<string> parse(string rawMultiCommand)
-{
-	Helper::debugPrint("parse");
-
-	rawMultiCommand = Helper::trimStr(rawMultiCommand);
-	rawMultiCommand = Helper::removeQuotes(rawMultiCommand);
-	vector<string> commands;
-
-	if (rawMultiCommand.length() == 0)
-	{
-		Helper::debugPrint("parse: rawMultiCommand is empty");
-		return commands;
-	}
-	else
-	{
-		// TODO: parse needs to account for pipes within strings
-		size_t index = 0;
-		string currCommand;
-
-		while ((index = rawMultiCommand.find(PIPE_DELIMITER)) != string::npos)
-		{
-			currCommand = rawMultiCommand.substr(0, index);
-			commands.push_back(Helper::trimStr(currCommand));
-			printf("\tDEBUG: currPipedToken = %s\n", commands.back().c_str());
-			rawMultiCommand.erase(0, index + 1);
-		}
-		// push the last command
-		commands.push_back(Helper::trimStr(rawMultiCommand));
-
-		printf("\tDEBUG: currPipedToken = %s\n", commands.back().c_str());
-		return commands;
-	}
-}
-
 void runCommands(vector<string> rawCommands)
 {
 	Helper::debugPrint("runCommands");
@@ -98,6 +59,9 @@ void runCommands(vector<string> rawCommands)
 
 int main(int argc, char *argv[])
 {
+	// Display prompt and wait for input
+	printf("myshell$");
+
 	// Get multi-command from standard input
 	string rawMultiCommand;
 	getline(cin, rawMultiCommand);
@@ -105,7 +69,7 @@ int main(int argc, char *argv[])
 	printf("\tDEBUG: rawMultiCommand = %s\n", rawMultiCommand.c_str());
 
 	// Parse the multi-command into a vector of commands
-	vector<string> rawCommands = parse(rawMultiCommand);
+	vector<string> rawCommands = Helper::lex(rawMultiCommand, PIPE_DELIMITER);
 
 	runCommands(rawCommands);
 	return 0;

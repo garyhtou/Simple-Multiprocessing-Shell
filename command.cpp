@@ -34,7 +34,7 @@ Command::Command(string rawCommand, int *inPipe, int *outPipe)
 }
 void Command::run()
 {
-	vector<string> args = tokenize(this->rawCommand);
+	vector<string> args = Helper::lex(this->rawCommand, DELIMITER);
 
 	try
 	{
@@ -44,31 +44,6 @@ void Command::run()
 	{
 		printf("\n\nDEBUG: Command::run caught unexpected exception !!!!!!\n\n\n");
 	}
-}
-
-vector<string> Command::tokenize(string rawCommand)
-{
-	Helper::debugPrint("Command::tokenize");
-	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
-	rawCommand = Helper::trimStr(rawCommand);
-	vector<string> tokens;
-
-	// TODO: parse needs to account for strings as a single token
-	size_t index = 0;
-	string currToken;
-	// Split using the delimiter
-	while ((index = rawCommand.find(this->DELIMITER)) != string::npos)
-	{
-		currToken = rawCommand.substr(0, index);
-		tokens.push_back(Helper::trimStr(currToken));
-		printf("\tDEBUG: currToken = %s\n", Helper::trimStr(currToken).c_str());
-		rawCommand.erase(0, index + 1);
-	}
-	// push the last token
-	tokens.push_back(Helper::trimStr(rawCommand));
-	printf("\tDEBUG: currToken = %s\n", Helper::trimStr(rawCommand).c_str());
-
-	return tokens;
 }
 
 void Command::execute(vector<string> args)

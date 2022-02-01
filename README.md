@@ -17,7 +17,7 @@ TODO:
   and subsequent commands will never exit.
 	- This seems like a open file descriptor issue that prof brought up in class
 - Command parsing needs to handle
-  - strings (Hank: Added remove quotes, might fix)
+  - strings 
   - escaped characters (new line, escaped quote, etc.)
 - Reach over the instructions/requirements again
 - Run all test cases
