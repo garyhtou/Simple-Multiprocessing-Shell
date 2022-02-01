@@ -15,10 +15,20 @@
 using namespace std;
 
 string rawCommand;
+int *inPipe;
+int *outPipe;
 
 Command::Command(string rawCommand)
 {
-	printf("\tDEBUG: Command::Command\n");
+	printf("\tDEBUG: Command::Command (given no pipe params)\n");
+	this->rawCommand = rawCommand;
+	this->inPipe = NULL;
+	this->outPipe = NULL;
+	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
+}
+Command::Command(string rawCommand, int *inPipe, int *outPipe)
+{
+	printf("\tDEBUG: Command::Command (piped)\n");
 	this->rawCommand = rawCommand;
 	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 }
@@ -42,15 +52,9 @@ void Command::run()
 	}
 }
 
-
-void Command:: runPiped()
-{
-	printf("\tDEBUG: Command::runP\n");
-}
-
 vector<string> Command::tokenize(string rawCommand)
 {
-	printf("\tDEBUG: Command::parse\n");
+	printf("\tDEBUG: Command::tokenize\n");
 	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 	rawCommand = Helper::trimStr(rawCommand);
 	vector<string> tokens;
@@ -116,11 +120,32 @@ void Command::execute(vector<string> args)
 void Command::childExecute(vector<string> args)
 {
 	printf("\tDEBUG: Command::childExecute\n");
+
+	if (this->inPipe)
+	{
+		printf("\tDEBUG: inPipe = %d\n", *inPipe);
+		setInPipe(this->inPipe);
+	}
+	else
+	{
+		printf("\tDEBUG: inPipe == NULL\n");
+	}
+
+	if (this->outPipe)
+	{
+		printf("\tDEBUG: outPipe = %d\n", *outPipe);
+		setOutPipe(this->outPipe);
+	}
+	else
+	{
+		printf("\tDEBUG: outPipe == NULL\n");
+	}
+
 	// convert C++ vector of strings to C array
 	char *const *argv = Command::stringVectorToCharArray(args);
 
 	execvp(argv[0], argv);
-	// A sucessfull execvp call will NOT return. This following code will only run
+	// A successful execvp call will NOT return. This following code will only run
 	// if an error with execvp occurs.
 
 	// The following code will only run if execvp itself fails.
@@ -138,6 +163,24 @@ void Command::childExecute(vector<string> args)
 	exit(1);
 }
 
+void Command::setInPipe(int *input)
+{
+	printf("\tDEBUG: set_read\n");
+	printf("\tDEBUG: input = [%d, %d]\n", input[0], input[1]);
+	dup2(input[0], STDIN_FILENO);
+	close(input[0]);
+	close(input[1]);
+}
+
+void Command::setOutPipe(int *output)
+{
+	printf("\tDEBUG: set_write\n");
+	printf("\t: output = [%d, %d]\n", output[0], output[1]);
+	dup2(output[1], STDOUT_FILENO);
+	close(output[0]);
+	close(output[1]);
+}
+
 char *const *Command::stringVectorToCharArray(vector<string> toConvert)
 {
 	char **charArr = new char *[toConvert.size() + 1];
@@ -148,7 +191,7 @@ char *const *Command::stringVectorToCharArray(vector<string> toConvert)
 		strcpy(charArr[i], toConvert[i].c_str());				//copy string
 		printf("\tDEBUG: charArr[%d] = %s\n", i, charArr[i]);
 	}
-	charArr[toConvert.size() + 1] = NULL;
+	charArr[toConvert.size()] = (char *)NULL;
 
 	return charArr; //pointers to the strings will be const to whoever receives this data.
 }
