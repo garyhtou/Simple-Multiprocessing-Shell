@@ -18,6 +18,7 @@ vector<string> parse(string rawMultiCommand)
 	printf("\tDEBUG: parse\n");
 
 	rawMultiCommand = Helper::trimStr(rawMultiCommand);
+	rawMultiCommand = Helper::removeQuotes(rawMultiCommand);
 	vector<string> commands;
 
 	if (rawMultiCommand.length() == 0)
@@ -40,10 +41,15 @@ vector<string> parse(string rawMultiCommand)
 		}
 		// push the last command
 		commands.push_back(Helper::trimStr(rawMultiCommand));
+
+		
 		printf("\tDEBUG: currPipedToken = %s\n", commands.back().c_str());
 		return commands;
 	}
 }
+
+
+
 
 void runCommands(vector<string> rawCommands)
 {
@@ -110,6 +116,8 @@ int main(int argc, char *argv[])
 	getline(cin, rawMultiCommand);
 
 	printf("\tDEBUG: rawMultiCommand = %s\n", rawMultiCommand.c_str());
+
+
 
 	// Parse the multi-command into a vector of commands
 	vector<string> rawCommands = parse(rawMultiCommand);
