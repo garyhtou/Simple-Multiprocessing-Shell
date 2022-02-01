@@ -23,6 +23,5 @@ string Helper::removeQuotes(string str)
 
 int Helper::debugPrint(const char *message)
 {
-	return 0;
-	// return printf("\tDEBUG: %s\n", message);
+	return printf("\tDEBUG: %s\n", message);
 }

@@ -20,23 +20,20 @@ int *outPipe;
 
 Command::Command(string rawCommand)
 {
-	Helper::debugPrint("Command::Command (given no pipe params)");
 	this->rawCommand = rawCommand;
+
+	// Default to no pipes (for single commands)
 	this->inPipe = NULL;
 	this->outPipe = NULL;
-	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 }
 Command::Command(string rawCommand, int *inPipe, int *outPipe)
 {
-	Helper::debugPrint("Command::Command (piped)");
 	this->rawCommand = rawCommand;
 	this->inPipe = inPipe;
 	this->outPipe = outPipe;
-	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 }
 void Command::run()
 {
-	Helper::debugPrint("Command::run");
 	vector<string> args = tokenize(this->rawCommand);
 
 	try
@@ -64,7 +61,7 @@ vector<string> Command::tokenize(string rawCommand)
 	{
 		currToken = rawCommand.substr(0, index);
 		tokens.push_back(Helper::trimStr(currToken));
-		printf("\tDEBUG: currToken = %s\n", currToken.c_str());
+		printf("\tDEBUG: currToken = %s\n", Helper::trimStr(currToken).c_str());
 		rawCommand.erase(0, index + 1);
 	}
 	// push the last token
@@ -76,7 +73,6 @@ vector<string> Command::tokenize(string rawCommand)
 
 void Command::execute(vector<string> args)
 {
-	Helper::debugPrint("Command::execute");
 	// fork and run
 	pid_t pid = fork();
 
@@ -128,28 +124,14 @@ void Command::childExecute(vector<string> args)
 	// convert C++ vector of strings to C array
 	char *const *argv = Command::stringVectorToCharArray(args);
 
-	printf("\tDEBUG: Going to setup the pipes (if necessary) — any prints after "
-				 "this statement will be inputted to the next command if output pipes are set "
-				 "up\n");
-
 	if (this->inPipe)
 	{
-		printf("\tDEBUG: inPipe = %d\n", *inPipe);
 		setInPipe(this->inPipe);
-	}
-	else
-	{
-		Helper::debugPrint("inPipe == NULL");
 	}
 
 	if (this->outPipe)
 	{
-		printf("\tDEBUG: outPipe = %d\n", *outPipe);
 		setOutPipe(this->outPipe);
-	}
-	else
-	{
-		Helper::debugPrint("outPipe == NULL");
 	}
 
 	execvp(argv[0], argv);
@@ -164,15 +146,12 @@ void Command::childExecute(vector<string> args)
 	}
 	delete[] argv;
 
-	Helper::debugPrint("Command failed to run");
 	perror("Command failed to run");
 	exit(1);
 }
 
 void Command::setInPipe(int *input)
 {
-	Helper::debugPrint("set_read");
-	printf("\tDEBUG: input = [%d, %d]\n", input[0], input[1]);
 	dup2(input[0], STDIN_FILENO);
 	close(input[0]);
 	close(input[1]);
@@ -180,8 +159,6 @@ void Command::setInPipe(int *input)
 
 void Command::setOutPipe(int *output)
 {
-	Helper::debugPrint("set_write");
-	printf("\tDEBUG: output = [%d, %d]\n", output[0], output[1]);
 	dup2(output[1], STDOUT_FILENO);
 	close(output[0]);
 	close(output[1]);

@@ -53,24 +53,22 @@ void runCommands(vector<string> rawCommands)
 
 	if (rawCommands.size() == 1)
 	{
-		Helper::debugPrint("runCommands: Running SINGLE command");
-		Command command = Command(rawCommands[0], NULL, NULL);
+		Command command = Command(rawCommands[0]);
 		command.run();
 		return;
 	}
 
-	Helper::debugPrint("runCommands: Running MULTI command");
 	vector<Command> commands;
 
 	int inPipe[2];
 	int outPipe[2];
 
 	// Set up and run the first command
-	Helper::debugPrint("runCommands: first command");
 	pipe(outPipe);
 
 	Command leadingCommand = Command(rawCommands[0], NULL, outPipe);
 	commands.push_back(leadingCommand);
+	printf("\nRUNNING COMMAND\n\n");
 	leadingCommand.run();
 
 	inPipe[0] = outPipe[0];
@@ -80,11 +78,11 @@ void runCommands(vector<string> rawCommands)
 	// first and last commands use default STDIN/STDOUT
 	for (int i = 1; i < rawCommands.size() - 1; i++)
 	{
-		printf("\tDEBUG: runCommands: command #%d\n", i + 1);
 		pipe(outPipe);
 		// Create a new command
 		Command command = Command(rawCommands[i], inPipe, outPipe);
 		commands.push_back(command);
+		printf("\nRUNNING COMMAND\n\n");
 		command.run();
 
 		inPipe[0] = outPipe[0];
@@ -92,15 +90,14 @@ void runCommands(vector<string> rawCommands)
 	}
 
 	// Set up and run the last command
-	Helper::debugPrint("runCommands: last command");
 	Command trailingCommand = Command(rawCommands[rawCommands.size() - 1], inPipe, NULL);
 	commands.push_back(trailingCommand);
+	printf("\nRUNNING COMMAND\n");
 	trailingCommand.run();
 }
 
 int main(int argc, char *argv[])
 {
-	Helper::debugPrint("main");
 	// Get multi-command from standard input
 	string rawMultiCommand;
 	getline(cin, rawMultiCommand);
@@ -111,9 +108,5 @@ int main(int argc, char *argv[])
 	vector<string> rawCommands = parse(rawMultiCommand);
 
 	runCommands(rawCommands);
-
-	// Command command("cat lksdf");
-	// Command command("echo hi");
-	// command.run();
 	return 0;
 }

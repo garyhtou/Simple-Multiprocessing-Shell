@@ -11,7 +11,6 @@ class Command
 public:
 	Command(string rawCommand);														 // constructor
 	Command(string rawCommand, int *inPipe, int *outPipe); // constructor
-	~Command();																						 // destructor
 	void run();
 	static const char DELIMITER = ' ';
 
