@@ -7,4 +7,5 @@ namespace Helper
 {
 	string removeQuotes(string str);
 	string trimStr(string str);
+	int debugPrint(const char *message);
 }

@@ -1,5 +1,5 @@
 #include "helper.h"
-#include<algorithm>
+#include <algorithm>
 #include <string>
 
 using namespace std;
@@ -12,9 +12,17 @@ string Helper::trimStr(string str)
 	return str.substr(first, (last - first + 1));
 }
 
-string Helper::removeQuotes(string str){
-	if(str.find('\"') != string::npos){
-		str.erase(remove( str.begin(), str.end(), '\"' ),str.end());
+string Helper::removeQuotes(string str)
+{
+	if (str.find('\"') != string::npos)
+	{
+		str.erase(remove(str.begin(), str.end(), '\"'), str.end());
 	}
 	return str;
+}
+
+int Helper::debugPrint(const char *message)
+{
+	return 0;
+	// return printf("\tDEBUG: %s\n", message);
 }

@@ -20,7 +20,7 @@ int *outPipe;
 
 Command::Command(string rawCommand)
 {
-	printf("\tDEBUG: Command::Command (given no pipe params)\n");
+	Helper::debugPrint("Command::Command (given no pipe params)");
 	this->rawCommand = rawCommand;
 	this->inPipe = NULL;
 	this->outPipe = NULL;
@@ -28,20 +28,15 @@ Command::Command(string rawCommand)
 }
 Command::Command(string rawCommand, int *inPipe, int *outPipe)
 {
-	printf("\tDEBUG: Command::Command (piped)\n");
+	Helper::debugPrint("Command::Command (piped)");
 	this->rawCommand = rawCommand;
 	this->inPipe = inPipe;
 	this->outPipe = outPipe;
 	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 }
-Command::~Command()
-{
-	printf("\tDEBUG: Command::~Command\n");
-	//TODO: might not be needed??
-}
 void Command::run()
 {
-	printf("\tDEBUG: Command::run\n");
+	Helper::debugPrint("Command::run");
 	vector<string> args = tokenize(this->rawCommand);
 
 	try
@@ -56,7 +51,7 @@ void Command::run()
 
 vector<string> Command::tokenize(string rawCommand)
 {
-	printf("\tDEBUG: Command::tokenize\n");
+	Helper::debugPrint("Command::tokenize");
 	printf("\tDEBUG: rawCommand = %s\n", rawCommand.c_str());
 	rawCommand = Helper::trimStr(rawCommand);
 	vector<string> tokens;
@@ -73,15 +68,15 @@ vector<string> Command::tokenize(string rawCommand)
 		rawCommand.erase(0, index + 1);
 	}
 	// push the last token
-	tokens.push_back(rawCommand);
-	printf("\tDEBUG: currToken = %s\n", rawCommand.c_str());
+	tokens.push_back(Helper::trimStr(rawCommand));
+	printf("\tDEBUG: currToken = %s\n", Helper::trimStr(rawCommand).c_str());
 
 	return tokens;
 }
 
 void Command::execute(vector<string> args)
 {
-	printf("\tDEBUG: Command::execute\n");
+	Helper::debugPrint("Command::execute");
 	// fork and run
 	pid_t pid = fork();
 
@@ -95,6 +90,13 @@ void Command::execute(vector<string> args)
 	{
 		this->childExecute(args);
 		// The child will exit in the function. It will never return here.
+	}
+
+	// Close pipes before waiting for child to exit
+	if (this->inPipe != NULL)
+	{
+		close(this->inPipe[0]);
+		close(this->inPipe[1]);
 	}
 
 	int status;
@@ -121,14 +123,14 @@ void Command::execute(vector<string> args)
 
 void Command::childExecute(vector<string> args)
 {
-	printf("\tDEBUG: Command::childExecute\n");
+	Helper::debugPrint("Command::childExecute");
 
 	// convert C++ vector of strings to C array
 	char *const *argv = Command::stringVectorToCharArray(args);
 
-	printf("\tDEBUG: Going to setup the pipes (if necessary) — any prints after "\
-	"this statement will be inputted to the next command if output pipes are set "\
-	"up\n");
+	printf("\tDEBUG: Going to setup the pipes (if necessary) — any prints after "
+				 "this statement will be inputted to the next command if output pipes are set "
+				 "up\n");
 
 	if (this->inPipe)
 	{
@@ -137,7 +139,7 @@ void Command::childExecute(vector<string> args)
 	}
 	else
 	{
-		printf("\tDEBUG: inPipe == NULL\n");
+		Helper::debugPrint("inPipe == NULL");
 	}
 
 	if (this->outPipe)
@@ -147,14 +149,12 @@ void Command::childExecute(vector<string> args)
 	}
 	else
 	{
-		printf("\tDEBUG: outPipe == NULL\n");
+		Helper::debugPrint("outPipe == NULL");
 	}
 
 	execvp(argv[0], argv);
 	// A successful execvp call will NOT return. This following code will only run
 	// if an error with execvp occurs.
-
-	// The following code will only run if execvp itself fails.
 	// Errors from the command executed is handled after waitpid.
 
 	// deallocate argv (necessary if execvp fails)
@@ -164,14 +164,14 @@ void Command::childExecute(vector<string> args)
 	}
 	delete[] argv;
 
-	printf("\tDEBUG: Command failed to run\n");
+	Helper::debugPrint("Command failed to run");
 	perror("Command failed to run");
 	exit(1);
 }
 
 void Command::setInPipe(int *input)
 {
-	printf("\tDEBUG: set_read\n");
+	Helper::debugPrint("set_read");
 	printf("\tDEBUG: input = [%d, %d]\n", input[0], input[1]);
 	dup2(input[0], STDIN_FILENO);
 	close(input[0]);
@@ -180,7 +180,7 @@ void Command::setInPipe(int *input)
 
 void Command::setOutPipe(int *output)
 {
-	printf("\tDEBUG: set_write\n");
+	Helper::debugPrint("set_write");
 	printf("\tDEBUG: output = [%d, %d]\n", output[0], output[1]);
 	dup2(output[1], STDOUT_FILENO);
 	close(output[0]);
