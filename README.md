@@ -3,8 +3,16 @@
 > https://seattleu.instructure.com/courses/1601766/assignments/6995263
 
 ## About
+myshell is a Linux command-line interpreter
+It is divided into three files:
 
-TODO:
+myshell.cpp: The main function of the project.
+  -Gets the command line input and turns it into a parsed and lexed string vector 
+  -It then either creates and runs a single command or runs piped multi-commands.
+
+command.cpp: Responsible for executing the commands and managing pipe file descriptors.
+
+helper.cpp: Contains the function that parses the string vector into tokens, and the function that handles whitespace.
 
 ## Team members
 
@@ -12,13 +20,3 @@ TODO:
 - Castel Villalobos ([@impropernoun](https://github.com/impropernoun))
 - Hank Rudolph ([@hankrud](https://github.com/HankRud))
 
-## TODO:
-- Single commands and the first command in a multi command works, but the second
-  and subsequent commands will never exit.
-	- This seems like a open file descriptor issue that prof brought up in class
-- Command parsing needs to handle
-  - strings 
-  - escaped characters (new line, escaped quote, etc.)
-- Reach over the instructions/requirements again
-- Run all test cases
-- Generate new test cases

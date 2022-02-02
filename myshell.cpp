@@ -1,8 +1,7 @@
 #include "command.h"
 #include "helper.h"
-
-#include <unistd.h>
 #include <iostream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -10,28 +9,29 @@ const char PIPE_DELIMITER = '|';
 
 void runCommands(vector<string> rawCommands)
 {
-	Helper::debugPrint("runCommands");
-
+	// Handle single command (no pipes)
 	if (rawCommands.size() == 1)
 	{
-		Command command = Command(rawCommands[0]);
+		// Run the single command
+		Command command = Command(rawCommands.front());
 		command.run();
 		return;
 	}
 
-	vector<Command> commands;
+	// Everything from here on is for multi-commands (involving pipes)
 
+	// Set up array to keep track of pipes
 	int inPipe[2];
 	int outPipe[2];
 
-	// Set up and run the first command
+	// Set up pipe for first command
 	pipe(outPipe);
 
+	// Run the first command with only an output pipe
 	Command leadingCommand = Command(rawCommands[0], NULL, outPipe);
-	commands.push_back(leadingCommand);
-	printf("\nRUNNING COMMAND\n\n");
 	leadingCommand.run();
 
+	// Reroute the pipes for the next command
 	inPipe[0] = outPipe[0];
 	inPipe[1] = outPipe[1];
 
@@ -39,21 +39,19 @@ void runCommands(vector<string> rawCommands)
 	// first and last commands use default STDIN/STDOUT
 	for (int i = 1; i < rawCommands.size() - 1; i++)
 	{
+		// Set up the pipes
 		pipe(outPipe);
-		// Create a new command
+		// Run the command
 		Command command = Command(rawCommands[i], inPipe, outPipe);
-		commands.push_back(command);
-		printf("\nRUNNING COMMAND\n\n");
 		command.run();
 
+		// Reroute the pipes for the next command
 		inPipe[0] = outPipe[0];
 		inPipe[1] = outPipe[1];
 	}
 
-	// Set up and run the last command
+	// Run the last command
 	Command trailingCommand = Command(rawCommands[rawCommands.size() - 1], inPipe, NULL);
-	commands.push_back(trailingCommand);
-	printf("\nRUNNING COMMAND\n");
 	trailingCommand.run();
 }
 
@@ -66,9 +64,7 @@ int main(int argc, char *argv[])
 	string rawMultiCommand;
 	getline(cin, rawMultiCommand);
 
-	printf("\tDEBUG: rawMultiCommand = %s\n", rawMultiCommand.c_str());
-
-	// Parse the multi-command into a vector of commands
+	// Parse the multi-command into a vector of raw commands (strings)
 	vector<string> rawCommands = Helper::lex(rawMultiCommand, PIPE_DELIMITER);
 
 	runCommands(rawCommands);

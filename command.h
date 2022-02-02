@@ -1,5 +1,3 @@
-//
-
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -9,10 +7,11 @@ using namespace std;
 class Command
 {
 public:
+	static const char DELIMITER = ' ';
+
 	Command(string rawCommand);														 // constructor
 	Command(string rawCommand, int *inPipe, int *outPipe); // constructor
 	void run();
-	static const char DELIMITER = ' ';
 
 private:
 	string rawCommand;
