@@ -68,6 +68,13 @@ int main(int argc, char *argv[])
 	// Parse the multi-command into a vector of raw commands (strings)
 	vector<string> rawCommands = Helper::lex(rawMultiCommand, PIPE_DELIMITER);
 
-	runCommands(rawCommands);
+	try
+	{
+		runCommands(rawCommands);
+	}
+	catch (...)
+	{
+		cout << "An error has occured";
+	}
 	return 0;
 }
