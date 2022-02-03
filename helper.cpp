@@ -42,44 +42,80 @@ vector<string> Helper::lex(string rawCommand, char delimiter)
 	size_t index = 0;
 	string currToken;
 	string currWord;
-	bool inQuotes = false;
-	char currQuote;
+	char currQuote = '\0';
+	bool last = false;
 
-	// Split using the delimiter
-	while ((index = rawCommand.find(delimiter)) != string::npos)
+	while (!last)
 	{
 		try
-		{ //create a word and remove the space
-			currWord = rawCommand.substr(0, index);
-			rawCommand.erase(0, index + 1);
+		{
+			// Find next delimiter character
+			index = rawCommand.find(delimiter);
 
-			// If we are currently in quotes
-			if (inQuotes)
+			if (index != string::npos)
 			{
-				bool endQuote = false;
-				try
-				{ //store the ending quote type if not preceded by the escape character
-					endQuote = (currWord.back() == currQuote) &&
-										 (currWord.size() == 1 || currWord[-2] != ESCAPE_CHAR);
-				}
-				catch (...)
+				// Set the current word
+				currWord = rawCommand.substr(0, index);
+				// Remove the current word from the raw command
+				rawCommand.erase(0, index + 1);
+			}
+			// If a delimiter is not found
+			else
+			{
+				// The rest of the string is the last word
+				currWord = rawCommand;
+				// set flag to signify that this is the last word
+				last = true;
+			}
+
+			// If we are currently in a quoted string
+			if (currQuote != '\0')
+			{
+				// Check if the quoted string is ending.
+				// The following conditions must be true:
+				//   1. The last (or only) character in the string is the same quote
+				//      character that was used to start the quoted string.
+				//   2. The character (if existint) before the quote character is not an
+				//      escape character.
+				if ((currWord.back() == currQuote) &&
+						(currWord.size() == 1 || (currWord.size() >= 2 && currWord[-2] != ESCAPE_CHAR)))
 				{
-					// do nothing
-				}
-				if (endQuote)
-				{
-					inQuotes = false;
+					// Reset the current quote character to signify that we are no longer
+					// in a quoted string
 					currQuote = '\0';
-					// Add word to current token without the quotation to the token
-					currToken += currWord.substr(0, currWord.size() - 1);
-					tokens.push_back(trimStr(currToken));
+
+					// If the ending quote is attached to other text
+					if (currWord.size() > 1)
+					{
+						// Remove the ending quote character from the string and add to the
+						// current token
+						currWord.pop_back();
+						currToken += currWord;
+					}
+
+					// Add the completed token to the vector
+					tokens.push_back(currToken); // Don't trim this token
 				}
 				else
 				{
-					// Are we still inside the quotes
+					// Are we still inside the quotes. Add the current word to the
+					// pre-existing current token
 					currToken += currWord + delimiter;
+
+					// Normally, at this point we would not add the current token to the
+					// vector since it is incomplete (the quoted string has not ended)
+					//
+					// However, if this is the last word in the command, and we are at
+					// this state, then this means that quote string was never terminated.
+					// Therefore, to prevent token loss, we add the current token to the
+					// vector (effectively closing the quoted string for them)
+					if (last)
+					{
+						tokens.push_back(currToken); // Don't trim this token
+					}
 				}
 			}
+			// This else case handles words that are not inside quoted strings
 			else
 			{
 				// Skip current word if it's just whitespace
@@ -88,19 +124,24 @@ vector<string> Helper::lex(string rawCommand, char delimiter)
 					continue;
 				}
 
-				// if the first character of the word is double quotations,
-				// erase the quotations and update the token
-				if (currWord.front() == DOUBLE_QUOTE || currWord.front() == SINGLE_QUOTE)
+				// If the first character of the word is a quote character, being a new
+				// token and update the current quote character to signify that we are
+				// now in a quoted string
+				//
+				// However, if this is the last word, don't allow creation of a new
+				// string. Just add the whole word as a token (in the else statement)
+				if (!last &&
+						(currWord.front() == DOUBLE_QUOTE || currWord.front() == SINGLE_QUOTE))
 				{
 					// We are starting a new quote
-					inQuotes = true;
 					currQuote = currWord.front();
+					// Remove the quote character from the begining of the current word
 					currWord.erase(0, 1);
-					currToken = currWord + delimiter;
+					currToken = currWord + delimiter; // Preseve the delimiter
 				}
 				else
 				{
-					// otherwise just add the word to the vector
+					// Otherwise just add the word as a token to the vector
 					currToken = currWord;
 					tokens.push_back(trimStr(currToken));
 				}
@@ -109,43 +150,8 @@ vector<string> Helper::lex(string rawCommand, char delimiter)
 		catch (...)
 		{
 			// do nothing
+			// word is skipped
 		}
-	}
-
-	// Ending case
-	currWord = rawCommand;
-	if (inQuotes)
-	{
-		bool endQuote = false;
-		try
-		{
-			endQuote = (currWord.back() == currQuote) &&
-								 (currWord.size() == 1 || currWord[-2] != ESCAPE_CHAR);
-		}
-		catch (...)
-		{
-			// do nothing
-		}
-		if (endQuote)
-		{
-			inQuotes = false;
-			currQuote = '\0';
-			// Add word to current token without the last char
-			currToken += currWord.substr(0, currWord.size() - 1);
-			tokens.push_back(trimStr(currToken));
-		}
-		else
-		{
-			currToken += currWord + delimiter;
-			// String never ended, but we'll end it anyways
-			tokens.push_back(trimStr(currToken));
-		}
-	}
-	// Skip current word if it's just whitespace
-	else if (trimStr(currWord).size() > 0)
-	{
-		currToken = currWord;
-		tokens.push_back(trimStr(currToken));
 	}
 
 	// Return all the lexed tokens
