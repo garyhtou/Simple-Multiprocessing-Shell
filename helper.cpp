@@ -78,15 +78,16 @@ vector<string> Helper::lex(string rawCommand, char delimiter)
 				//      character that was used to start the quoted string.
 				//   2. The character (if existint) before the quote character is not an
 				//      escape character.
-				if (currWord.size() > 0 && (currWord.back() == currQuote) &&
-						(currWord.size() == 1 || (currWord.size() >= 2 && currWord[-2] != ESCAPE_CHAR)))
+				int currWordSize = int(currWord.size());
+				if (currWordSize > 0 && (currWord.back() == currQuote) &&
+						(currWordSize == 1 || (currWordSize >= 2 && currWord[-2] != ESCAPE_CHAR)))
 				{
 					// Reset the current quote character to signify that we are no longer
 					// in a quoted string
 					currQuote = '\0';
 
 					// If the ending quote is attached to other text
-					if (currWord.size() > 1)
+					if (int(currWord.size()) > 1)
 					{
 						// Remove the ending quote character from the string and add to the
 						// current token
@@ -120,7 +121,7 @@ vector<string> Helper::lex(string rawCommand, char delimiter)
 			else
 			{
 				// Skip current word if it's just whitespace
-				if (trimStr(currWord).size() == 0)
+				if (int(trimStr(currWord).size()) == 0)
 				{
 					continue;
 				}

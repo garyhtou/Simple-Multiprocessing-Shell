@@ -11,7 +11,7 @@ const char PIPE_DELIMITER = '|';
 void runCommands(vector<string> rawCommands)
 {
 	// Handle single command (no pipes)
-	if (rawCommands.size() == 1)
+	if (int(rawCommands.size()) == 1)
 	{
 		// Run the single command
 		Command command = Command(rawCommands.front());
