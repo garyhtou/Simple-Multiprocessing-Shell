@@ -8,6 +8,41 @@ using namespace std;
 
 const char PIPE_DELIMITER = '|';
 
+void waitForChildren()
+{
+	while (true)
+	{
+		// Wait for the child process to exit
+		int status;
+		pid_t pid = wait(&status);
+
+		if (int(pid) <= 0)
+		{
+			// No children left. We have waited for all children to exit
+			return;
+		}
+
+		// Get and print exit status of child process
+		if (WIFEXITED(status))
+		{
+			int code = WEXITSTATUS(status);
+			cout << "process " << pid << " exits with " << code << endl;
+		}
+		// Handle edge case where child process was terminated via signal
+		else if (WIFSIGNALED(status))
+		{
+			int signal = WTERMSIG(status);
+			// The process was terminated by a signal.
+			cout << "process " << pid << " was terminated with " << signal << endl;
+		}
+		else
+		{
+			cout << "process " << pid << " exits with "
+					 << "unknown code" << endl;
+		}
+	}
+}
+
 void runCommands(vector<string> rawCommands)
 {
 	// Handle single command (no pipes)
@@ -16,6 +51,9 @@ void runCommands(vector<string> rawCommands)
 		// Run the single command
 		Command command = Command(rawCommands.front());
 		command.run();
+
+		// Wait for the single child process to exit
+		waitForChildren();
 		return;
 	}
 
@@ -60,6 +98,9 @@ void runCommands(vector<string> rawCommands)
 	// Run the last command
 	Command trailingCommand = Command(rawCommands[rawCommands.size() - 1], inPipe, NULL);
 	trailingCommand.run();
+
+	// Wait for children AFTER forking and executing all commands
+	waitForChildren();
 }
 
 int main(int argc, char *argv[])

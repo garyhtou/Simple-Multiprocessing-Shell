@@ -60,40 +60,20 @@ void Command::execute(vector<string> args)
 	if (pid < 0)
 	{
 		cout << "Error: Fork failed" << endl;
+
+		// Critical error. Exit program on fork failure
+		exit(1);
 	}
 
-	// Close pipes before waiting for the child to exit
+	// Close pipes
 	if (this->inPipe != NULL)
 	{
 		close(this->inPipe[0]);
 		close(this->inPipe[1]);
 	}
 
-	// Wait for the child process to exit
-	int status;
-	if (int(waitpid(pid, &status, 0)) == -1)
-	{
-		cout << "Error: Failed to wait for child" << endl;
-	}
-
-	// Get exit status of child process
-	if (WIFEXITED(status))
-	{
-		int code = WEXITSTATUS(status);
-		cout << "process " << pid << " exits with " << code << endl;
-	}
-	// Handle edge case where child process was terminated via signal
-	else if (WIFSIGNALED(status))
-	{
-		int signal = WTERMSIG(status);
-		// The process was terminated by a signal.
-		cout << "process " << pid << " was terminated with " << signal << endl;
-	}
-	else
-	{
-		cout << "process " << pid << " exits with "
-				 << "unknown code" << endl;
-	}
+	// Don't wait for child process to exit here. Only wait for child processes
+	// after ALL commands have been ran (forked and executed).
 }
 
 void Command::childExecute(vector<string> args)
