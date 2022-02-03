@@ -10,6 +10,5 @@ namespace Helper
 	const char ESCAPE_CHAR = '\\';
 
 	string trimStr(string str);
-	int debugPrint(const char *message);
 	vector<string> lex(string rawMultiCommand, char delimiter);
 }
