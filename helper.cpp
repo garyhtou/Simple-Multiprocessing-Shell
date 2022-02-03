@@ -1,4 +1,5 @@
 #include "helper.h"
+
 #include <string>
 #include <vector>
 
@@ -13,11 +14,11 @@ string Helper::trimStr(string str)
 		size_t last = str.find_last_not_of(" \t\n\r");
 
 		// Handle case where no non-whitespace characters are found
-		if (first == -1)
+		if (first == string::npos)
 		{
 			first = 0;
 		}
-		if (last == -1)
+		if (last == string::npos)
 		{
 			last = str.length();
 		}
@@ -77,7 +78,7 @@ vector<string> Helper::lex(string rawCommand, char delimiter)
 				//      character that was used to start the quoted string.
 				//   2. The character (if existint) before the quote character is not an
 				//      escape character.
-				if ((currWord.back() == currQuote) &&
+				if (currWord.size() > 0 && (currWord.back() == currQuote) &&
 						(currWord.size() == 1 || (currWord.size() >= 2 && currWord[-2] != ESCAPE_CHAR)))
 				{
 					// Reset the current quote character to signify that we are no longer

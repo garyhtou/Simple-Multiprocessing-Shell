@@ -1,5 +1,6 @@
 #include "command.h"
 #include "helper.h"
+
 #include <iostream>
 #include <unistd.h>
 
@@ -37,7 +38,7 @@ void runCommands(vector<string> rawCommands)
 
 	// Start with the 2nd command and end with the 2nd to last command since the
 	// first and last commands use default STDIN/STDOUT
-	for (int i = 1; i < rawCommands.size() - 1; i++)
+	for (size_t i = 1; i < rawCommands.size() - 1; i++)
 	{
 		// Set up the pipes
 		pipe(outPipe);

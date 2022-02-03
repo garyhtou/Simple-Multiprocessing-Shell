@@ -2,9 +2,11 @@
 #include "helper.h"
 
 #include <iostream>
+#include <unistd.h>
+#include <sys/wait.h>
 #include <vector>
 #include <string>
-#include <unistd.h>
+#include <cstring>
 
 using namespace std;
 
@@ -116,7 +118,7 @@ void Command::childExecute(vector<string> args)
 	// Errors from the command executed are handled after waitpid.
 
 	// Deallocate argv (necessary if execvp fails)
-	for (int i = 0; i < args.size(); i++)
+	for (size_t i = 0; i < args.size(); i++)
 	{
 		delete[] argv[i];
 	}
@@ -149,7 +151,7 @@ char *const *Command::stringVectorToCharArray(vector<string> toConvert)
 	char **charArr = new char *[toConvert.size() + 1];
 
 	// Convert each C++ String to a C string and store in the array
-	for (int i = 0; i < toConvert.size(); i++)
+	for (size_t i = 0; i < toConvert.size(); i++)
 	{
 		charArr[i] = new char[toConvert[i].size() + 1]; // make it fit
 		strcpy(charArr[i], toConvert[i].c_str());				// copy string
