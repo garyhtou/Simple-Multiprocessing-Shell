@@ -71,7 +71,10 @@ void Command::execute(vector<string> args)
 
 	// Wait for the child process to exit
 	int status;
-	waitpid(pid, &status, 0);
+	if (int(waitpid(pid, &status, 0)) == -1)
+	{
+		cout << "Error: Failed to wait for child" << endl;
+	}
 
 	// Get exit status of child process
 	if (WIFEXITED(status))
@@ -131,17 +134,35 @@ void Command::childExecute(vector<string> args)
 void Command::setInPipe(int *input)
 {
 	// Duplicate the file descriptor and close the previous file descriptor
-	dup2(input[0], STDIN_FILENO);
-	close(input[0]);
-	close(input[1]);
+	if (int(dup2(input[0], STDIN_FILENO)) == -1)
+	{
+		cout << "Error: dup2 failed" << endl;
+	};
+	if (int(close(input[0])) == -1)
+	{
+		cout << "Error: close system call failed" << endl;
+	};
+	if (int(close(input[1])) == -1)
+	{
+		cout << "Error: close system call failed" << endl;
+	};
 }
 
 void Command::setOutPipe(int *output)
 {
 	// Duplicate the file descriptor and close the previous file descriptor
-	dup2(output[1], STDOUT_FILENO);
-	close(output[0]);
-	close(output[1]);
+	if (int(dup2(output[1], STDOUT_FILENO)) == -1)
+	{
+		cout << "Error: dup2 failed" << endl;
+	};
+	if (int(close(output[0])) == -1)
+	{
+		cout << "Error: close system call failed" << endl;
+	};
+	if (int(close(output[1])) == -1)
+	{
+		cout << "Error: close system call failed" << endl;
+	};
 }
 
 char *const *Command::stringVectorToCharArray(vector<string> toConvert)

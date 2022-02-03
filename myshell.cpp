@@ -26,7 +26,10 @@ void runCommands(vector<string> rawCommands)
 	int outPipe[2];
 
 	// Set up pipe for first command
-	pipe(outPipe);
+	if (pipe(outPipe) == -1)
+	{
+		cout << "Error: pipe failed" << endl;
+	};
 
 	// Run the first command with only an output pipe
 	Command leadingCommand = Command(rawCommands[0], NULL, outPipe);
@@ -41,7 +44,10 @@ void runCommands(vector<string> rawCommands)
 	for (size_t i = 1; i < rawCommands.size() - 1; i++)
 	{
 		// Set up the pipes
-		pipe(outPipe);
+		if (pipe(outPipe) == -1)
+		{
+			cout << "Error: pipe failed" << endl;
+		};
 		// Run the command
 		Command command = Command(rawCommands[i], inPipe, outPipe);
 		command.run();
