@@ -1,8 +1,14 @@
-# CPSC 3500: Project 2
+# 🐚 [**myshell**] A Simple Shell with Multiprocessing and Pipes
 
-> **Date:** February 3rd, 2002
+## About
 
-> **Assignment:** https://seattleu.instructure.com/courses/1601766/assignments/6995263
+`myshell` is a simple shell (command-line interpreter) capable of handling one
+command (with or without pipes).
+
+It reads a single line from the `stdin`, lexes it, then executes it via
+`execvp`.
+
+<sub>More information can be found [here](/assignment/Project2_shell.pdf).</sub>
 
 ## Team members and contribution
 
@@ -19,13 +25,6 @@
   - Convert C++ string to c string
   - Prompt and get input
 
-## About
-`myshell` is a simple shell (command-line interpreter) capabile for handling one
-command (with or without pipes).
-
-It reads a single line from the `stdin`, lexes it, then executes it via
-`execvp`.
-
 ### Strengths and Weaknesses
 
 **Strength:**
@@ -39,16 +38,16 @@ It reads a single line from the `stdin`, lexes it, then executes it via
 **Weaknesses:**
 
 - Shell does not run continuously
-- Does not handle chaning operators such as `&&`, `||`, and `;` (it does handle
+- Does not handle changing operators such as `&&`, `||`, and `;` (it does handle
   `|`)
-- Does not handle envrionment variables
+- Does not handle environment variables
 
 ### The program is composed of three files:
 
-- `myshell.cpp`: Contains the main function of the program and handles
-coordination of multiple commands and pipes.
-  - Gets the inputed command and parses and lexes it.
-  - Then either runs it as a single command (no pipes) or multi-command (with
+- `myshell.cpp`: Contains the main function and handles the coordination of
+  multiple commands and pipes.
+  - Gets the inputted command and parses and lexes it.
+  - Then runs it as either a single command (no pipes) or multi-command (with
     pipes).
 - `command.cpp`: Responsible for executing the commands and managing pipe file
   descriptors.
